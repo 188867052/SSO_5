@@ -57,6 +57,7 @@ namespace SSO.Controllers
         [Route(SignInMicrosoftRoute)]
         public IActionResult SignInCallBack(string code)
         {
+            _logger.LogInformation($"SignInCallBack code: {code}");
             try
             {
                 var keyValuePairs = new Dictionary<string, string>()
@@ -81,8 +82,12 @@ namespace SSO.Controllers
                 dynamic obj = JsonConvert.DeserializeObject(result);
 
                 string access_token = obj.access_token;
+                _logger.LogInformation($"SignInCallBack access_token: {access_token}");
 
                 var user = GetUser(access_token);
+
+                _logger.LogInformation($"SignInCallBack user: {user.Mail}");
+
                 string UserCode = user.DisplayName.ToString();
 
                 //为空判断
@@ -93,6 +98,8 @@ namespace SSO.Controllers
 
                 //获取token
                 string url2 = $"{EDoc2_V5_Path}/api/services/Org/UserLoginIntegrationByUserLoginName";
+
+                _logger.LogInformation($"SignInCallBack url2: {url2}");
                 var result2 = PostUrl(url2, JsonConvert.SerializeObject(new
                 {
                     IntegrationKey = IntegrationKey,
@@ -100,6 +107,8 @@ namespace SSO.Controllers
                     IPAddress = GetLocalIp(),
                 }));
 
+
+                _logger.LogInformation($"SignInCallBack {nameof(result2)}: {result2}");
                 dynamic dyObj = JsonConvert.DeserializeObject(result2);
                 //判断是否成功
                 string token = dyObj.data;
