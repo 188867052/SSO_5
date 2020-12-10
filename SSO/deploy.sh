@@ -10,5 +10,6 @@ then
  sudo docker rm $containerId
 fi
 
-sudo docker run -d -p 8236:80 --restart=always 542153354/sso:v1.0 /bin/sh 
+
+sudo docker run --rm -it -p 8000:80 -p 8236:443 -e ASPNETCORE_URLS="https://+;http://+" -e ASPNETCORE_HTTPS_PORT=8001 -e ASPNETCORE_Kestrel__Certificates__Default__Password="123456" -e ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx -v ${HOME}/.aspnet/https:/https/ 542153354/sso:v1.0
 exit
