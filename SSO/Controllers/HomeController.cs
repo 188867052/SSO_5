@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net.Http;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -13,7 +12,6 @@ using System.Text;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.IO;
-using SSO.Models;
 using Newtonsoft.Json;
 using Microsoft.Graph;
 
@@ -49,72 +47,28 @@ namespace SSO.Controllers
             return View();
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-
         public IActionResult Login()
         {
-            /*try
-            {
-                String returnUrl="";
-                //判读是否包含cookie
-                HttpContext.Request.Cookies.TryGetValue("token", out string token);
-                if (!string.IsNullOrEmpty(token))
-                {
-                    //验证token是否有效
-                    var existResult = _orgAppService.CheckUserTokenValidity(token);
-                    if (existResult != null && existResult.Data == true)
-                    {
-                        if (!string.IsNullOrEmpty(returnUrl))
-                        {
-                            return Redirect($"{EDoc2_V5_Path}/jump.html?token={token}&returnUrl={returnUrl}");
-                        }
-                        else
-                        {
-                            return Redirect($"{EDoc2_V5_Path}/jump.html?token={token}&returnUrl={returnUrl}");
-                        }
-                    }
-                }
-                //设置urlcookie
-                HttpContext.Response.Cookies.Append("returnUrl", returnUrl, new CookieOptions { Expires = DateTime.Now.AddMinutes(10) });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-            }
-            //凭借url
-            var ssoUrl = $"{SSoAuthorizationPath}?client_id={SSoClientID}&response_type=code&redirect_uri={CallBack}&oauth_timestamp={(DateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / 10000000}";
-            return Redirect(ssoUrl);*/
-
             var url = GetSignInUrl();
             return Redirect(url);
         }
 
-
         [HttpGet]
         [Route(SignInMicrosoftRoute)]
-        public async Task<IActionResult> SignInCallBackAsync(string code)
+        public IActionResult SignInCallBack(string code)
         {
             try
             {
                 var keyValuePairs = new Dictionary<string, string>()
-            {
-                { "client_id", ClientId },
-                { "redirect_uri", $"https://{this.HttpContext.Request.Host.Value}/signin-microsoft" },
-                { "client_secret", "5osm29e4gm2Dgb9X6Aw~qj~8j_EKtq~UCm" },
-                { "code", code },
-                { "scope", "https://microsoftgraph.chinacloudapi.cn/.default" },
-                { "grant_type", "authorization_code" },
-                { "resource", "https://microsoftgraph.chinacloudapi.cn"},
-            };
+                {
+                    { "client_id", ClientId },
+                    { "redirect_uri", $"https://{this.HttpContext.Request.Host.Value}/signin-microsoft" },
+                    { "client_secret", "5osm29e4gm2Dgb9X6Aw~qj~8j_EKtq~UCm" },
+                    { "code", code },
+                    { "scope", "https://microsoftgraph.chinacloudapi.cn/.default" },
+                    { "grant_type", "authorization_code" },
+                    { "resource", "https://microsoftgraph.chinacloudapi.cn"},
+                };
 
                 using var client = this.httpClientFactory.CreateClient();
                 string url = $"https://login.partner.microsoftonline.cn/{talentId}/oauth2/token";
@@ -129,7 +83,7 @@ namespace SSO.Controllers
                 string access_token = obj.access_token;
 
                 var user = GetUser(access_token);
-                String UserCode = user.DisplayName.ToString();
+                string UserCode = user.DisplayName.ToString();
 
                 //为空判断
                 if (string.IsNullOrEmpty(UserCode))
@@ -165,53 +119,6 @@ namespace SSO.Controllers
                     _logger.LogWarning($"用户wwid 集成登录失败");
                 }
 
-
-
-                /*//集成获取用户信息
-                string authUrl = $"{SSoAoauth2Path}?client_id={SSoClientID}&client_secret={SSoClientSecret}&redirect_uri={CallBack}&code={code}";
-
-                HttpClient httpClient = new HttpClient();
-                var c = httpClient.GetAsync(authUrl).Result.Content.ReadAsStringAsync().Result;
-
-                //获取token
-                var resulttoken = WebApiHelperExtend.InvokeApiGet(authUrl, null);
-
-                if (!string.IsNullOrEmpty(resulttoken)) { 
-                    //获取用户登录信息
-                    var userInfoJson = WebApiHelperExtend.InvokeApiGet($"{SSoAuthInfo}?{resulttoken}", null);
-                    var authUserInfo = JsonConvert.DeserializeObject<AuthUserInfo>(userInfoJson);
-                    var wwid = authUserInfo.id;
-
-                    var userloginResult = _orgAppService.UserLoginIntegrationByUserLoginName(new UserLoginIntegrationByUserLoginNameDto
-                    {
-                        IntegrationKey = IntegrationKey,
-                        LoginName = wwid,
-                        IPAddress = GetLocalIp()         //当前IP
-                    });
-
-                    if (userloginResult != null)
-                    {
-                        _logger.LogInformation(JsonConvert.SerializeObject(userloginResult));
-                    }
-                    //判断是否成功
-                    if (userloginResult != null && userloginResult.Result == 0 && userloginResult.Data != null)
-                    {
-                        _logger.LogInformation($"用户wwid{wwid}集成登录成功跳转");
-                        //获取urlcookie
-                        HttpContext.Request.Cookies.TryGetValue("returnUrl", out string returnUrl);
-                        if (string.IsNullOrEmpty(returnUrl))
-                        {
-                            returnUrl = $"{EDoc2_V5_Path}{PortalUrl}";
-                        }
-                        return Redirect($"{EDoc2_V5_Path}/jump.html?token={userloginResult.Data}&returnUrl={returnUrl}");
-                    }
-                    else
-                    {
-                        _logger.LogWarning($"用户wwid{wwid} 集成登录失败");
-                    }
-
-                }*/
-
                 return null;
             }
             catch (Exception ex)
@@ -221,7 +128,7 @@ namespace SSO.Controllers
             }
         }
 
-        public User GetUser(string access_code)
+        private User GetUser(string access_code)
         {
             var graphServiceClient = new GraphServiceClient(GraphClientBaseUrl, new DelegateAuthenticationProvider((requestMessage) =>
             {
@@ -234,6 +141,7 @@ namespace SSO.Controllers
                 .GetAsync().Result;
             return user;
         }
+
         private string GetSignInUrl()
         {
             var redirect_uri = UriHelper.BuildAbsolute("https", this.HttpContext.Request.Host, SignInMicrosoftRoute);
@@ -246,7 +154,7 @@ namespace SSO.Controllers
             return url;
         }
         ///获取本地的IP地址
-        public string GetLocalIp()
+        private string GetLocalIp()
         {
             string AddressIP = string.Empty;
             foreach (IPAddress _IPAddress in Dns.GetHostEntry(Dns.GetHostName()).AddressList)
