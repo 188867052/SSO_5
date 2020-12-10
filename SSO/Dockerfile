@@ -14,10 +14,7 @@ RUN dotnet build "SSO.csproj" -c Release -o /app/build
 FROM build AS publish
 RUN dotnet publish "SSO.csproj" -c Release -o /app/publish
 
-#RUN dotnet dev-certs https -ep ${HOME}/.aspnet/https/aspnetapp.pfx -p 111111
-#RUN dotnet dev-certs https --trust
-
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "SSO.dll"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
