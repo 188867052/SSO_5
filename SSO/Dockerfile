@@ -1,5 +1,3 @@
-#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
 FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim AS base
 WORKDIR /app
 EXPOSE 80
@@ -16,7 +14,7 @@ RUN dotnet build "SSO.csproj" -c Release -o /app/build
 FROM build AS publish
 RUN dotnet publish "SSO.csproj" -c Release -o /app/publish
 
-RUN dotnet dev-certs https -ep ${HOME}/.aspnet/https/aspnetapp.pfx - 111111
+RUN dotnet dev-certs https -ep ${HOME}/.aspnet/https/aspnetapp.pfx -p 111111
 RUN dotnet dev-certs https --trust
 
 FROM base AS final
