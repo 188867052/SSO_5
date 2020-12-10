@@ -3,9 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.IO;
+using System.Security.Cryptography.X509Certificates;
 
 namespace SSO
 {
@@ -16,11 +15,16 @@ namespace SSO
             CreateHostBuilder(args).Build().Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
+
+        public static IHostBuilder CreateHostBuilder(string[] args)
+        {
+            var x509ca = new X509Certificate2(File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "aspnetapp.pfx")), "123456");
+            return Host.CreateDefaultBuilder(args)
+                    .ConfigureWebHostDefaults(webBuilder =>
+                    {
+                        webBuilder.UseKestrel(option => option.ListenAnyIP(3000, config => config.UseHttps(x509ca)))
+                        .UseStartup<Startup>();
+                    });
+        }
     }
 }
