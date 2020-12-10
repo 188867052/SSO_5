@@ -99,16 +99,16 @@ namespace SSO.Controllers
                 //获取token
                 string url2 = $"{EDoc2_V5_Path}/api/services/Org/UserLoginIntegrationByUserLoginName";
 
-                _logger.LogInformation($"SignInCallBack url2: {url2}");
-                var result2 = PostUrl(url2, JsonConvert.SerializeObject(new
+                string json = JsonConvert.SerializeObject(new
                 {
                     IntegrationKey = IntegrationKey,
                     LoginName = UserCode,
                     IPAddress = GetLocalIp(),
-                }));
+                });
+                _logger.LogInformation($"SignInCallBack 获取token Url: {url2}，数据：{json}");
+                var result2 = PostUrl(url2, json);
 
-
-                _logger.LogInformation($"SignInCallBack {nameof(result2)}: {result2}");
+                _logger.LogInformation($"SignInCallBack 获取token返回结果: {result2}");
                 dynamic dyObj = JsonConvert.DeserializeObject(result2);
                 //判断是否成功
                 string token = dyObj.data;
