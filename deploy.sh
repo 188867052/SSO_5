@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sudo docker pull 542153354/sso:v1.0 
+sudo docker pull 542153354/sso:v2.0 
 
 containerId="`sudo docker ps | grep "8236->80" | awk  '{print $1}'`"
 echo "containerId:$containerId"
@@ -10,5 +10,5 @@ then
  sudo docker rm $containerId
 fi
 
-sudo docker run -d -p 8236:80 --restart=always 542153354/sso:v1.0 /bin/sh 
+sudo docker run -d -p 8236:80 --restart=always 542153354/sso:v2.0 /bin/sh 
 exit
