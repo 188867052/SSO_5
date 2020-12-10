@@ -16,18 +16,6 @@ RUN dotnet build "SSO.csproj" -c Release -o /app/build
 FROM build AS publish
 RUN dotnet publish "SSO.csproj" -c Release -o /app/publish
 
-
-ENV ASPNETCORE_Kestrel__Certificates__Default__Password="123456" 
-ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/app/server.pfx
-ENV certPassword 123456
- 
-RUN openssl genrsa -des3 -passout pass:${certPassword} -out server.key 2048
-RUN openssl rsa -passin pass:${certPassword} -in server.key -out server.key
-RUN openssl req -sha256 -new -key server.key -out server.csr -subj '/CN=localhost'
-RUN openssl x509 -req -sha256 -days 365 -in server.csr -signkey server.key -out server.crt
-RUN openssl pkcs12 -export -out server.pfx -inkey server.key -in server.crt -certfile server.crt -passout pass:${certPassword}
-
-
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
