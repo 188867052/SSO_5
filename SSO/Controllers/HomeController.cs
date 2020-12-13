@@ -22,6 +22,7 @@ namespace SSO.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IHttpClientFactory httpClientFactory;
         private const string SignInMicrosoftRoute = "/signin-microsoft";
+        private const string TokenUrl = "/api/services/Org/UserLoginIntegrationByUserLoginName";
         private const string ClientId = "6a560634-8f5f-43e0-a97c-5790180e5a07";
         public const string GraphClientBaseUrl = "https://microsoftgraph.chinacloudapi.cn/v1.0";
         public const string EDoc2_V5_Path = "https://47.92.240.66:2443";                  //项目根路径        
@@ -97,7 +98,6 @@ namespace SSO.Controllers
                 }
 
                 //获取token
-                string url2 = $"{EDoc2_V5_Path}/api/services/Org/UserLoginIntegrationByUserLoginName";
 
                 string json = JsonConvert.SerializeObject(new
                 {
@@ -105,8 +105,15 @@ namespace SSO.Controllers
                     LoginName = UserCode,
                     IPAddress = GetLocalIp(),
                 });
-                _logger.LogInformation($"SignInCallBack 获取token Url: {url2}，数据：{json}");
-                var result2 = PostUrl(url2, json);
+                _logger.LogInformation($"SignInCallBack 获取token Url: {TokenUrl}，数据：{json}");
+
+                var httpclientHandler = new HttpClientHandler();
+                httpclientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, error) => true;
+                HttpClient httpClient = new HttpClient(httpclientHandler);
+                httpClient.BaseAddress = new Uri(EDoc2_V5_Path);
+                StringContent stringContent = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var result2 = httpClient.PostAsync(TokenUrl, stringContent).Result.Content.ReadAsStringAsync().Result;
 
                 _logger.LogInformation($"SignInCallBack 获取token返回结果: {result2}");
                 dynamic dyObj = JsonConvert.DeserializeObject(result2);
