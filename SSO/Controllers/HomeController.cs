@@ -178,6 +178,7 @@ namespace SSO.Controllers
 
         private static string PostUrl(string url, string postData)
         {
+            ServicePointManager.DefaultConnectionLimit = 500;
             HttpWebRequest request = null;
             if (url.StartsWith("https", StringComparison.OrdinalIgnoreCase))
             {
