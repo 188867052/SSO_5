@@ -178,7 +178,6 @@ namespace SSO.Controllers
 
         private static string PostUrl(string url, string postData)
         {
-            ServicePointManager.DefaultConnectionLimit = 500;
             HttpWebRequest request = null;
             if (url.StartsWith("https", StringComparison.OrdinalIgnoreCase))
             {
@@ -205,21 +204,18 @@ namespace SSO.Controllers
             request.Accept = "*/*";
 
             byte[] data = Encoding.UTF8.GetBytes(postData);
-            Stream newStream = request.GetRequestStream();
-            newStream.Write(data, 0, data.Length);
-            newStream.Close();
-
-            //获取网页响应结果
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-            Stream stream = response.GetResponseStream();
-            //client.Headers.Add("Content-Type", "application/x-www-form-urlencoded");
-            string result = string.Empty;
-            using (StreamReader sr = new StreamReader(stream))
+            using (Stream newStream = request.GetRequestStream())
             {
-                result = sr.ReadToEnd();
+                newStream.Write(data, 0, data.Length);
+                newStream.Close();
             }
 
-            return result;
+            //获取网页响应结果
+            using HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            using Stream stream = response.GetResponseStream();
+            //client.Headers.Add("Content-Type", "application/x-www-form-urlencoded");
+            using StreamReader sr = new StreamReader(stream);
+            return sr.ReadToEnd();
         }
 
         private static bool CheckValidationResult(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
