@@ -132,7 +132,7 @@ namespace SSO.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogWarning("错误信息:" + ex.Message.ToString());
+                _logger.LogError(ex, ex.Message);
                 return Redirect($"{EDoc2_V5_Path}/loginerror.html");
             }
         }
@@ -185,7 +185,8 @@ namespace SSO.Controllers
                 ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CheckValidationResult);
                 request.ProtocolVersion = HttpVersion.Version11;
                 // 这里设置了协议类型。
-                request.Timeout = 5000;
+                request.Timeout = 100000;
+                request.ReadWriteTimeout = 300000;
 
                 ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072;// SecurityProtocolType.Tls1.2; 
                 request.KeepAlive = false;

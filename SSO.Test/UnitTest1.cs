@@ -34,8 +34,6 @@ namespace SSO.Test
             var result2 = PostUrl(url2, json);
         }
 
-
-
         private static string PostUrl(string url, string postData)
         {
             HttpWebRequest request = null;
