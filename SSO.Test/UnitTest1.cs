@@ -13,7 +13,7 @@ namespace SSO.Test
         public const string IntegrationKey = "46aa92ec-66af-4818-b7c1-8495a9bd7f17";      //集成登录用到        
 
         [Fact]
-        public void Test1()
+        public async System.Threading.Tasks.Task Test1Async()
         {
             string url2 = $"{EDoc2_V5_Path}/api/services/Org/UserLoginIntegrationByUserLoginName";
 
@@ -30,7 +30,9 @@ namespace SSO.Test
             httpClient.BaseAddress = new Uri(EDoc2_V5_Path);
             StringContent stringContent = new StringContent(json, Encoding.UTF8, "application/json");
            
-            var result = httpClient.PostAsync("/api/services/Org/UserLoginIntegrationByUserLoginName", stringContent).Result.Content.ReadAsStringAsync();
+            var result = await httpClient.PostAsync("/api/services/Org/UserLoginIntegrationByUserLoginName", stringContent);
+
+            var message = await result.Content.ReadAsStringAsync();
         }
         
         private string GetLocalIp()
