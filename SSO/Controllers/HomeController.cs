@@ -9,9 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Text;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
-using System.IO;
 using Newtonsoft.Json;
 using Microsoft.Graph;
 
@@ -54,35 +51,13 @@ namespace SSO.Controllers
             return Redirect(url);
         }
 
-        private void Test1()
-        {
-            string url2 = $"{EDoc2_V5_Path}/api/services/Org/UserLoginIntegrationByUserLoginName";
-
-            string json = JsonConvert.SerializeObject(new
-            {
-                IntegrationKey = IntegrationKey,
-                LoginName = "EdocAdmin",
-                IPAddress = GetLocalIp(),
-            });
-
-            using var httpclientHandler = new HttpClientHandler();
-            httpclientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, error) => true;
-            using HttpClient httpClient = new HttpClient(httpclientHandler);
-            httpClient.BaseAddress = new Uri(EDoc2_V5_Path);
-            using StringContent stringContent = new StringContent(json, Encoding.UTF8, "application/json");
-            var result = httpClient.PostAsync("/api/services/Org/UserLoginIntegrationByUserLoginName", stringContent).Result.Content.ReadAsStringAsync().Result;
-            _logger.LogInformation($" Test result: {result}");
-        }
-
         [HttpGet]
         [Route(SignInMicrosoftRoute)]
-        public IActionResult SignInCallBack(string code)
+        public async Task<IActionResult> SignInCallBackAsync(string code)
         {
             _logger.LogInformation($"SignInCallBack code: {code}");
             try
             {
-                Test1();
-
                 var keyValuePairs = new Dictionary<string, string>()
                 {
                     { "client_id", ClientId },
@@ -129,16 +104,18 @@ namespace SSO.Controllers
                 });
                 _logger.LogInformation($"SignInCallBack 获取token Url: {TokenUrl}，数据：{json}");
 
-                var httpclientHandler = new HttpClientHandler();
-                httpclientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, error) => true;
+                var httpclientHandler = new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = (message, cert, chain, error) => true
+                };
                 HttpClient httpClient = new HttpClient(httpclientHandler);
                 httpClient.BaseAddress = new Uri(EDoc2_V5_Path);
                 StringContent stringContent = new StringContent(json, Encoding.UTF8, "application/json");
 
-                var result2 = httpClient.PostAsync(TokenUrl, stringContent).Result.Content.ReadAsStringAsync().Result;
+                var result2 = await httpClient.PostAsync(TokenUrl, stringContent);
 
                 _logger.LogInformation($"SignInCallBack 获取token返回结果: {result2}");
-                dynamic dyObj = JsonConvert.DeserializeObject(result2);
+                dynamic dyObj =  JsonConvert.DeserializeObject(await result2.Content.ReadAsStringAsync());
                 //判断是否成功
                 string token = dyObj.data;
                 if (token != null)
