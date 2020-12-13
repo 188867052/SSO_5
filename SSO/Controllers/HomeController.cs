@@ -185,6 +185,8 @@ namespace SSO.Controllers
                 ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CheckValidationResult);
                 request.ProtocolVersion = HttpVersion.Version11;
                 // 这里设置了协议类型。
+                request.Timeout = 5000;
+
                 ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072;// SecurityProtocolType.Tls1.2; 
                 request.KeepAlive = false;
                 ServicePointManager.CheckCertificateRevocationList = true;

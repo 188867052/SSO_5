@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -25,6 +26,11 @@ namespace SSO.Test
                 LoginName = "EdocAdmin",
                 IPAddress = GetLocalIp(),
             });
+
+            //HttpClient httpClient = new HttpClient();
+            //httpClient.BaseAddress = new Uri(EDoc2_V5_Path);
+            //StringContent stringContent = new StringContent(json, Encoding.UTF8, "application/json");
+            //var result = httpClient.PostAsync("/api/services/Org/UserLoginIntegrationByUserLoginName", stringContent).Result.Content.ReadAsStringAsync() ;
             var result2 = PostUrl(url2, json);
         }
 
@@ -36,6 +42,7 @@ namespace SSO.Test
             if (url.StartsWith("https", StringComparison.OrdinalIgnoreCase))
             {
                 request = WebRequest.Create(url) as HttpWebRequest;
+                request.Timeout = 5000;
                 ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CheckValidationResult);
                 request.ProtocolVersion = HttpVersion.Version11;
                 // 这里设置了协议类型。
