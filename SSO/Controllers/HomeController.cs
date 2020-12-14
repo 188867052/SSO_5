@@ -22,7 +22,8 @@ namespace SSO.Controllers
         private const string TokenUrl = "/api/services/Org/UserLoginIntegrationByUserLoginName";
         private const string ClientId = "6a560634-8f5f-43e0-a97c-5790180e5a07";
         public const string GraphClientBaseUrl = "https://microsoftgraph.chinacloudapi.cn/v1.0";
-        public const string EDoc2_V5_Path = "https://10.10.21.132:443";                  //项目根路径        
+        public const string EDoc2_V5_Token_Path = "https://10.10.21.132:443";
+        public const string EDoc2_V5_Path = "https://47.92.240.66:2443";                  //项目根路径        
         public const string IntegrationKey = "46aa92ec-66af-4818-b7c1-8495a9bd7f17";      //集成登录用到        
         public const string SSoClientID = "edocadmin@genorbio.com";                       //客户端Id            
         public const string SSoClientSecret = "6b8b57e5-ddb5-4841-a8be-13b85e5270c7";     //密钥        
@@ -109,7 +110,7 @@ namespace SSO.Controllers
                     ServerCertificateCustomValidationCallback = (message, cert, chain, error) => true
                 };
                 HttpClient httpClient = new HttpClient(httpclientHandler);
-                httpClient.BaseAddress = new Uri(EDoc2_V5_Path);
+                httpClient.BaseAddress = new Uri(EDoc2_V5_Token_Path);
                 StringContent stringContent = new StringContent(json, Encoding.UTF8, "application/json");
 
                 var result2 = await httpClient.PostAsync(TokenUrl, stringContent);
