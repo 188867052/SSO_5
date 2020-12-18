@@ -34,12 +34,12 @@ steps:
   inputs:
     command: 'build'
     Dockerfile: '$(Build.SourcesDirectory)/dockerfile'
-    arguments: '-t 542153354/sso:v8.0'
+    arguments: '-t 542153354/sso:v9.0'
 
 - task: CmdLine@2
   displayName: Docker push👌
   inputs:
-    script: 'docker push 542153354/sso:v8.0'
+    script: 'docker push 542153354/sso:v9.0'
 
 - task: CmdLine@2
   displayName: deploy to TencentCloud🚀
