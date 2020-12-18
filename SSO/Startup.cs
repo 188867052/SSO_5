@@ -63,7 +63,7 @@ namespace SSO
             {
                 con.Run(async context =>
                 {
-                    context.Response.Redirect("/home/login");
+                    context.Response.Redirect("/home/index");
                     await Task.FromResult(0);
 
                 });
