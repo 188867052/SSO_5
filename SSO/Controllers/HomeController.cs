@@ -84,11 +84,13 @@ namespace SSO.Controllers
         {
             LogCookie();
 
-            if (this.HttpContext.User.Identity.IsAuthenticated)
+            if (this.HttpContext.User.Identity.IsAuthenticated && this.HttpContext.Request.Cookies.TryGetValue("u_loginoutguid", out string logout_token))
             {
                 RemoveCookie();
                 return Redirect("/MicrosoftIdentity/Account/SignOut");
             }
+
+            RemoveCookie();
             _logger.LogInformation($"Login 登录： /MicrosoftIdentity/Account/SignIn");
             return Redirect("/MicrosoftIdentity/Account/SignIn");
         }
