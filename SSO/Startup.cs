@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Threading.Tasks;
 
 namespace SSO
 {
@@ -58,6 +59,15 @@ namespace SSO
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.Map("/MicrosoftIdentity/Account/SignedOut", con =>
+            {
+                con.Run(async context =>
+                {
+                    context.Response.Redirect("/home/login");
+                    await Task.FromResult(0);
+
+                });
+            });
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
