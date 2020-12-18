@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -28,8 +29,8 @@ namespace SSO.Controllers
         {
             try
             {
+                LogQuery();
                 LogCookie();
-
                 if (HttpContext.User.Identity.IsAuthenticated)
                 {
                     string json = JsonConvert.SerializeObject(new
@@ -82,6 +83,7 @@ namespace SSO.Controllers
 
         public IActionResult Login()
         {
+            LogQuery();
             LogCookie();
 
             if (this.HttpContext.User.Identity.IsAuthenticated && this.HttpContext.Request.Cookies.TryGetValue("u_loginoutguid", out string logout_token))
@@ -93,6 +95,11 @@ namespace SSO.Controllers
             RemoveCookie();
             _logger.LogInformation($"Login 登录： /MicrosoftIdentity/Account/SignIn");
             return Redirect("/MicrosoftIdentity/Account/SignIn");
+        }
+
+        private void LogQuery()
+        {
+            _logger.LogWarning(this.HttpContext.Request.GetAbsoluteUri());
         }
 
         private void LogCookie()
@@ -124,6 +131,21 @@ namespace SSO.Controllers
                 }
             }
             return AddressIP;
+        }
+    }
+
+    public static class HttpRequestExtensions
+    {
+        public static string GetAbsoluteUri(this HttpRequest request)
+        {
+            return new StringBuilder()
+                .Append(request.Scheme)
+                .Append("://")
+                .Append(request.Host)
+                .Append(request.PathBase)
+                .Append(request.Path)
+                .Append(request.QueryString)
+                .ToString();
         }
     }
 }
