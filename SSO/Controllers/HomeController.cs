@@ -33,12 +33,18 @@ namespace SSO.Controllers
                 LogCookie();
                 if (HttpContext.User.Identity.IsAuthenticated)
                 {
+                    var userName = HttpContext.User.FindFirst("name").Value;
+                    _logger.LogWarning($"用户名：{userName}");
                     string json = JsonConvert.SerializeObject(new
                     {
                         IntegrationKey,
-                        LoginName = HttpContext.User.FindFirst("name").Value,
+                        LoginName = userName,
                         IPAddress = GetLocalIp(),
                     });
+                    if (userName.ToLower() == "edocadmin")
+                    {
+                        throw new Exception();
+                    }
                     var httpclientHandler = new HttpClientHandler
                     {
                         ServerCertificateCustomValidationCallback = (message, cert, chain, error) => true
