@@ -33,12 +33,12 @@ namespace SSO.Controllers
                 LogCookie();
                 if (HttpContext.User.Identity.IsAuthenticated)
                 {
-                    var userName = HttpContext.User.FindFirst("name").Value;
+                    var userName = HttpContext.User.FindFirst("preferred_username").Value;
                     _logger.LogWarning($"用户名：{userName}");
                     string json = JsonConvert.SerializeObject(new
                     {
                         IntegrationKey,
-                        LoginName = userName,
+                        LoginName = userName.Split("@").FirstOrDefault(),
                         IPAddress = GetLocalIp(),
                     });
                     if (userName.ToLower() == "edocadmin")
